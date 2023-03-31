@@ -93,7 +93,7 @@
  *    DEFINITIONS
  ******************************************************************************/
 
-#if defined(__TN_COMPILER_ARMCC__)
+#if defined(__TN_COMPILER_ARMCC__) || defined(__TN_ASSEMBLER_ARMCC__)
 
 #  define   _TN_NAME(x)             x
 #  define   _TN_LOCAL_NAME(x)       x
@@ -176,7 +176,7 @@
  *    ASM PROLOGUE
  ******************************************************************************/
 
-#if defined(__TN_COMPILER_ARMCC__)
+#if defined(__TN_COMPILER_ARMCC__) || defined(__TN_ASSEMBLER_ARMCC__)
 
    AREA    |.text|, CODE, READONLY, ALIGN=3
    THUMB

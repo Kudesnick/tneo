@@ -67,6 +67,7 @@
 #undef __TN_COMPILER_IAR__
 #undef __TN_COMPILER_GCC__
 #undef __TN_COMPILER_CLANG__
+#undef __TN_ASSEMBLER_ARMCC__
 
 
 
@@ -101,37 +102,80 @@
 #elif defined (__ARMCC_VERSION)
 
 #  define __TN_ARCH_CORTEX_M__
-#  define __TN_COMPILER_ARMCC__
 
-#  if defined(__TARGET_CPU_CORTEX_M0)
-#     define __TN_ARCH_CORTEX_M0__
-#     define __TN_ARCHFEAT_CORTEX_M_ARMv6M_ISA__
+#  if defined(__clang__)
+
+/*
+ * If you want to use compiller v6, don't check "Assembler using by clang V6" in tab "asm"
+ * this option not compatible with keil asm syntax and scatter file syntax.
+ */
+#     define __TN_COMPILER_CLANG__
+#     define __TN_ASSEMBLER_ARMCC__
+
+#     if defined(__ARM_ARCH)
+   
+#        define __TN_ARCH_CORTEX_M__
+   
+#        if defined(__ARM_ARCH_6M__)
+#           define __TN_ARCH_CORTEX_M0__
+#           define __TN_ARCHFEAT_CORTEX_M_ARMv6M_ISA__
+#        elif defined(__ARM_ARCH_7M__)
+#           define __TN_ARCH_CORTEX_M3__
+#           define __TN_ARCHFEAT_CORTEX_M_ARMv6M_ISA__
+#           define __TN_ARCHFEAT_CORTEX_M_ARMv7M_ISA__
+#        elif defined(__ARM_ARCH_7EM__)
+#           if defined(__SOFTFP__)
+#              define __TN_ARCH_CORTEX_M4__
+#              define __TN_ARCHFEAT_CORTEX_M_ARMv6M_ISA__
+#              define __TN_ARCHFEAT_CORTEX_M_ARMv7M_ISA__
+#              define __TN_ARCHFEAT_CORTEX_M_ARMv7EM_ISA__
+#           else
+#              define __TN_ARCH_CORTEX_M4_FP__
+#              define __TN_ARCHFEAT_CORTEX_M_FPU__
+#              define __TN_ARCHFEAT_CORTEX_M_ARMv6M_ISA__
+#              define __TN_ARCHFEAT_CORTEX_M_ARMv7M_ISA__
+#              define __TN_ARCHFEAT_CORTEX_M_ARMv7EM_ISA__
+#           endif
+#        else
+#           error unknown ARM architecture for armclang compiler
+#        endif
+#     else
+#        error unknown architecture for armclang compiler
+#     endif
+
+#  else
+#     define __TN_COMPILER_ARMCC__
+   
+#     if defined(__TARGET_CPU_CORTEX_M0)
+#        define __TN_ARCH_CORTEX_M0__
+#        define __TN_ARCHFEAT_CORTEX_M_ARMv6M_ISA__
 
 /*
  * For Cortex-M0+, ARMCC defines pretty nasty macro __TARGET_CPU_CORTEX_M0_,
  * see some details here:
  * http://stackoverflow.com/questions/25973956/predefined-cpu-target-macro-for-cortex-m0
  */
-#  elif defined(__TARGET_CPU_CORTEX_M0_)
-#     define __TN_ARCH_CORTEX_M0__
-#     define __TN_ARCHFEAT_CORTEX_M_ARMv6M_ISA__
-#  elif defined(__TARGET_CPU_CORTEX_M3)
-#     define __TN_ARCH_CORTEX_M3__
-#     define __TN_ARCHFEAT_CORTEX_M_ARMv6M_ISA__
-#     define __TN_ARCHFEAT_CORTEX_M_ARMv7M_ISA__
-#  elif defined(__TARGET_CPU_CORTEX_M4)
-#     define __TN_ARCH_CORTEX_M4__
-#     define __TN_ARCHFEAT_CORTEX_M_ARMv6M_ISA__
-#     define __TN_ARCHFEAT_CORTEX_M_ARMv7M_ISA__
-#     define __TN_ARCHFEAT_CORTEX_M_ARMv7EM_ISA__
-#  elif defined(__TARGET_CPU_CORTEX_M4_FP)
-#     define __TN_ARCH_CORTEX_M4_FP__
-#     define __TN_ARCHFEAT_CORTEX_M_FPU__
-#     define __TN_ARCHFEAT_CORTEX_M_ARMv6M_ISA__
-#     define __TN_ARCHFEAT_CORTEX_M_ARMv7M_ISA__
-#     define __TN_ARCHFEAT_CORTEX_M_ARMv7EM_ISA__
-#  else
-#     error unknown architecture for ARMCC compiler
+#     elif defined(__TARGET_CPU_CORTEX_M0_)
+#        define __TN_ARCH_CORTEX_M0__
+#        define __TN_ARCHFEAT_CORTEX_M_ARMv6M_ISA__
+#     elif defined(__TARGET_CPU_CORTEX_M3)
+#        define __TN_ARCH_CORTEX_M3__
+#        define __TN_ARCHFEAT_CORTEX_M_ARMv6M_ISA__
+#        define __TN_ARCHFEAT_CORTEX_M_ARMv7M_ISA__
+#     elif defined(__TARGET_CPU_CORTEX_M4)
+#        define __TN_ARCH_CORTEX_M4__
+#        define __TN_ARCHFEAT_CORTEX_M_ARMv6M_ISA__
+#        define __TN_ARCHFEAT_CORTEX_M_ARMv7M_ISA__
+#        define __TN_ARCHFEAT_CORTEX_M_ARMv7EM_ISA__
+#     elif defined(__TARGET_CPU_CORTEX_M4_FP)
+#        define __TN_ARCH_CORTEX_M4_FP__
+#        define __TN_ARCHFEAT_CORTEX_M_FPU__
+#        define __TN_ARCHFEAT_CORTEX_M_ARMv6M_ISA__
+#        define __TN_ARCHFEAT_CORTEX_M_ARMv7M_ISA__
+#        define __TN_ARCHFEAT_CORTEX_M_ARMv7EM_ISA__
+#     else
+#        error unknown architecture for ARMCC compiler
+#     endif
 #  endif
 
 #elif defined (__IAR_SYSTEMS_ICC__) || defined (__IAR_SYSTEMS_ASM__)
