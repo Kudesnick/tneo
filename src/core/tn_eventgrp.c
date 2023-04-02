@@ -85,7 +85,7 @@ _TN_STATIC_INLINE enum TN_RCode _check_param_generic(
 
 _TN_STATIC_INLINE enum TN_RCode _check_param_job_perform(
       const struct TN_EventGrp  *eventgrp,
-      enum TN_EGrpWaitMode       wait_mode,
+      unsigned int               wait_mode,
       TN_UWord                   pattern
       )
 {

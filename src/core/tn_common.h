@@ -49,6 +49,7 @@
 
 #include "../arch/tn_arch_detect.h"
 #include "tn_cfg_dispatch.h"
+#include "../core/tn_common_macros.h"
 
 #ifdef __cplusplus
 extern "C"  {     /*}*/
@@ -63,16 +64,16 @@ extern "C"  {     /*}*/
  */
 // TODO: use TN_UWord here instead of unsigned int
 enum TN_ObjId {
-   TN_ID_NONE           = (int)0x0,         //!< id for invalid object
-   TN_ID_TASK           = (int)0x47ABCF69,  //!< id for tasks
-   TN_ID_SEMAPHORE      = (int)0x6FA173EB,  //!< id for semaphores
-   TN_ID_EVENTGRP       = (int)0x5E224F25,  //!< id for event groups
-   TN_ID_DATAQUEUE      = (int)0x0C8A6C89,  //!< id for data queues
-   TN_ID_FSMEMORYPOOL   = (int)0x26B7CE8B,  //!< id for fixed memory pools
-   TN_ID_MUTEX          = (int)0x17129E45,  //!< id for mutexes
-   TN_ID_TIMER          = (int)0x1A937FBC,  //!< id for timers
-   TN_ID_EXCHANGE       = (int)0x32b7c072,  //!< id for exchange objects
-   TN_ID_EXCHANGE_LINK  = (int)0x24d36f35,  //!< id for exchange link
+   TN_ID_NONE           = CAST(int)(0x0),         //!< id for invalid object
+   TN_ID_TASK           = CAST(int)(0x47ABCF69),  //!< id for tasks
+   TN_ID_SEMAPHORE      = CAST(int)(0x6FA173EB),  //!< id for semaphores
+   TN_ID_EVENTGRP       = CAST(int)(0x5E224F25),  //!< id for event groups
+   TN_ID_DATAQUEUE      = CAST(int)(0x0C8A6C89),  //!< id for data queues
+   TN_ID_FSMEMORYPOOL   = CAST(int)(0x26B7CE8B),  //!< id for fixed memory pools
+   TN_ID_MUTEX          = CAST(int)(0x17129E45),  //!< id for mutexes
+   TN_ID_TIMER          = CAST(int)(0x1A937FBC),  //!< id for timers
+   TN_ID_EXCHANGE       = CAST(int)(0x32b7c072),  //!< id for exchange objects
+   TN_ID_EXCHANGE_LINK  = CAST(int)(0x24d36f35)   //!< id for exchange link
 };
 
 /**
@@ -136,7 +137,7 @@ enum TN_RCode {
    TN_RC_FORCED               =  -9,
    /// Internal kernel error, should never be returned by kernel services.
    /// If it is returned, it's a bug in the kernel.
-   TN_RC_INTERNAL             = -10,
+   TN_RC_INTERNAL             = -10
 };
 
 /**

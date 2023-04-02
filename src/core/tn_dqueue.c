@@ -356,7 +356,7 @@ static enum TN_RCode _queue_receive(
    //-- try to read data from the queue
    rc = _fifo_read(dque, pp_data);
 
-   switch (rc){
+   switch ((int)rc){
       case TN_RC_OK:
          //-- successfully read item from the queue.
          //   if there are tasks that wait to send data to the queue,

@@ -237,7 +237,7 @@ enum TN_StateFlag {
    /// deadlock is active
    /// Note: this feature works if only `#TN_MUTEX_DEADLOCK_DETECT` is non-zero.
    /// @see `#TN_MUTEX_DEADLOCK_DETECT`
-   TN_STATE_FLAG__DEADLOCK       = (1 << 1),
+   TN_STATE_FLAG__DEADLOCK       = (1 << 1)
 };
 
 /**
@@ -255,7 +255,7 @@ enum TN_Context {
    TN_CONTEXT_TASK,
    ///
    /// ISR context
-   TN_CONTEXT_ISR,
+   TN_CONTEXT_ISR
 };
 
 /**

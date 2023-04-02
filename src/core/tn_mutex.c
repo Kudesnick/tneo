@@ -76,7 +76,7 @@
 
 #if TN_MUTEX_REC
 //-- recursive locking enabled
-#  define __mutex_lock_cnt_change(mutex, value)  { (mutex)->cnt += (value); }
+#  define __mutex_lock_cnt_change(mutex, value)  (mutex)->cnt += (value)
 #  define __MUTEX_REC_LOCK_RETVAL   TN_RC_OK
 #else
 //-- recursive locking disabled
@@ -203,10 +203,12 @@ _TN_STATIC_INLINE int _find_max_priority_by_mutex(
          priority = _find_max_blocked_priority(mutex, priority);
          break;
 
+      /*
       default:
          //-- should never happen
          _TN_FATAL_ERRORF("wrong mutex protocol=%d", mutex->protocol);
          break;
+      */
    }
 
    return priority;

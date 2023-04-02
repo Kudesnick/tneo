@@ -124,24 +124,24 @@ struct TN_Task _tn_idle_task;
 
 /// Pointer to user idle callback function, it gets called regularly
 /// from the idle task.
-TN_CBIdle *_tn_cb_idle_hook = TN_NULL;
+static TN_CBIdle *_tn_cb_idle_hook = TN_NULL;
 
 /// Pointer to stack overflow callback function. When stack overflow
 /// is detected by the kernel, this function gets called.
 /// (see `#TN_STACK_OVERFLOW_CHECK`)
-TN_CBStackOverflow *_tn_cb_stack_overflow = TN_NULL;
+static TN_CBStackOverflow *_tn_cb_stack_overflow = TN_NULL;
 
 /// User-provided callback function that gets called whenever 
 /// mutex deadlock occurs.
 /// (see `#TN_MUTEX_DEADLOCK_DETECT`)
-TN_CBDeadlock *_tn_cb_deadlock = TN_NULL;
+static TN_CBDeadlock *_tn_cb_deadlock = TN_NULL;
 
 /// Time slice values for each available priority, in system ticks.
-unsigned short _tn_tslice_ticks[TN_PRIORITIES_CNT];
+static unsigned short _tn_tslice_ticks[TN_PRIORITIES_CNT];
 
 #if TN_MUTEX_DEADLOCK_DETECT
 /// Number of deadlocks active at the moment. Normally it is equal to 0.
-int _tn_deadlocks_cnt = 0;
+static int _tn_deadlocks_cnt = 0;
 #endif
 
 
@@ -167,7 +167,7 @@ extern void you_should_add_file___tn_app_check_c___to_the_project(void);
 /**
  * Idle task body. In fact, this task is always in RUNNABLE state.
  */
-static void _idle_task_body(void *par)
+__attribute__ ((noreturn)) static void _idle_task_body(void *par)
 {
    //-- enter endless loop with calling user-provided hook function
    for(;;)
@@ -655,7 +655,7 @@ enum TN_RCode tn_sys_tslice_set(int priority, int ticks)
       TN_INTSAVE_DATA;
 
       TN_INT_DIS_SAVE();
-      _tn_tslice_ticks[priority] = ticks;
+      _tn_tslice_ticks[priority] = (unsigned short)ticks;
       TN_INT_RESTORE();
    }
    return rc;

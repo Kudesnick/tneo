@@ -113,13 +113,13 @@ extern struct TN_Task _tn_idle_task;
 //-- Depending on `TN_DEBUG` value, define `_TN_BUG_ON()` macro,
 //   which generates runtime fatal error if given condition is true
 #if TN_DEBUG
-#define  _TN_BUG_ON(cond, ...){              \
-   if (cond){                                \
-      _TN_FATAL_ERROR(__VA_ARGS__);          \
-   }                                         \
-}
+#define  _TN_BUG_ON(_cond){  \
+   if (_cond){               \
+      _TN_FATAL_ERROR();     \
+   }                         \
+} _DUMMY
 #else
-#define  _TN_BUG_ON(cond)     /* `TN_DEBUG` is 0, so, nothing to do here */
+#define  _TN_BUG_ON(_cond) _DUMMY /* `TN_DEBUG` is 0, so, nothing to do here */
 #endif
 
 

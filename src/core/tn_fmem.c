@@ -323,11 +323,11 @@ enum TN_RCode tn_fmem_create(
    //-- init block pointers
    {
       void **p_tmp;
-      unsigned char *p_block;
+      TN_UWord *p_block;
       int i;
 
       p_tmp    = (void **)fmem->start_addr;
-      p_block  = (unsigned char *)fmem->start_addr + fmem->block_size;
+      p_block  = (TN_UWord *)fmem->start_addr + (fmem->block_size / sizeof(TN_UWord));
       for (i = 0; i < (fmem->blocks_cnt - 1); i++){
          *p_tmp  = (void *)p_block;  //-- contents of cell = addr of next block
          p_tmp   = (void **)p_block;

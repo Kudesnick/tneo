@@ -129,7 +129,7 @@ static void _find_next_task_to_run(void)
 #ifdef _TN_FFS
    //-- architecture-dependent way to find-first-set-bit is available,
    //   so use it.
-   priority = _TN_FFS(_tn_ready_to_run_bmp);
+   priority = _TN_FFS((int)_tn_ready_to_run_bmp);
    priority--;
 #else
    //-- there is no architecture-dependent way to find-first-set-bit available,
@@ -409,7 +409,7 @@ enum TN_RCode tn_task_create(
       TN_TaskBody            *task_func,
       int                     priority,
       TN_UWord               *task_stack_low_addr,
-      int                     task_stack_size,
+      unsigned int            task_stack_size,
       void                   *param,
       enum TN_TaskCreateOpt   opts
       )
@@ -418,7 +418,7 @@ enum TN_RCode tn_task_create(
    enum TN_RCode rc;
    enum TN_Context context;
 
-   int i;
+   unsigned int i;
 
    //-- Lightweight checking of system tasks recreation
    if (     priority == (TN_PRIORITIES_CNT - 1)
@@ -526,7 +526,7 @@ enum TN_RCode tn_task_create_wname(
       TN_TaskBody            *task_func,
       int                     priority,
       TN_UWord               *task_stack_low_addr,
-      int                     task_stack_size,
+      unsigned int            task_stack_size,
       void                   *param,
       enum TN_TaskCreateOpt   opts,
       const char             *name
@@ -893,7 +893,7 @@ enum TN_RCode tn_task_profiler_timing_get(
    if (rc != TN_RC_OK){
       //-- just return rc as it is
    } else {
-      int sr_saved;
+      TN_UWord sr_saved;
       sr_saved = tn_arch_sr_save_int_dis();
 
       //-- just copy timing data from task structure
@@ -962,7 +962,8 @@ void _tn_task_clear_runnable(struct TN_Task *task)
    priority = task->priority;
 
    //-- remove runnable state
-   task->task_state &= ~TN_TASK_STATE_RUNNABLE;
+   task->task_state |= TN_TASK_STATE_RUNNABLE;
+   task->task_state ^= TN_TASK_STATE_RUNNABLE;
 
    //-- remove the curr task from any queue (now - from ready queue)
    if (_remove_entry_from_ready_queue(&(task->task_queue), priority)){
@@ -1076,7 +1077,8 @@ void _tn_task_clear_waiting(struct TN_Task *task, enum TN_RCode wait_rc)
    _tn_timer_cancel(&task->timer);
 
    //-- remove WAIT state
-   task->task_state &= ~TN_TASK_STATE_WAIT;
+   task->task_state |= TN_TASK_STATE_WAIT;
+   task->task_state ^= TN_TASK_STATE_WAIT;
 
    //-- Clear wait reason
    task->task_wait_reason = TN_WAIT_REASON_NONE;
@@ -1108,7 +1110,8 @@ void _tn_task_clear_suspended(struct TN_Task *task)
    }
 #endif
 
-   task->task_state &= ~TN_TASK_STATE_SUSPEND;
+   task->task_state |= TN_TASK_STATE_SUSPEND;
+   task->task_state ^= TN_TASK_STATE_SUSPEND;
 }
 
 void _tn_task_set_dormant(struct TN_Task* task)
@@ -1154,7 +1157,8 @@ void _tn_task_clear_dormant(struct TN_Task *task)
          task->task_func_param
          );
 
-   task->task_state &= ~TN_TASK_STATE_DORMANT;
+   task->task_state |= TN_TASK_STATE_DORMANT;
+   task->task_state ^= TN_TASK_STATE_DORMANT;
 
 
 #if TN_PROFILER

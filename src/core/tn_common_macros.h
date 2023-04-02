@@ -88,6 +88,12 @@
 #define _TN_STRINGIFY_MACRO(x)      _TN_STRINGIFY_LITERAL(x)
 
 
+#ifdef __cplusplus
+#   define CAST(t) static_cast<t>
+#else
+#   define CAST(t) (t)
+#endif
+
 
 
 #endif // _TN_COMMON_MACROS_H

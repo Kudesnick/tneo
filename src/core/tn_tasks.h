@@ -242,7 +242,7 @@ enum TN_TaskExitOpt {
    TN_TASK_EXIT_OPT_DELETE = (1 << 0),
 };
 
-#if TN_PROFILER || DOXYGEN_ACTIVE
+#if TN_PROFILER || defined(DOXYGEN_ACTIVE)
 /**
  * Timing structure that is managed by profiler and can be read by
  * `#tn_task_profiler_timing_get()` function. This structure is contained in
@@ -269,7 +269,7 @@ struct TN_TaskTiming {
    /// Maximum consecutive time task was running.
    unsigned long        max_consecutive_run_time;
 
-#if TN_PROFILER_WAIT_TIME || DOXYGEN_ACTIVE
+#if TN_PROFILER_WAIT_TIME || defined(DOXYGEN_ACTIVE)
    ///
    /// Available if only `#TN_PROFILER_WAIT_TIME` option is non-zero.
    ///
@@ -303,7 +303,7 @@ struct _TN_TaskProfiler {
    ///
    /// Tick count of when the task got running or non-running last time.
    TN_TickCnt        last_tick_cnt;
-#if TN_PROFILER_WAIT_TIME || DOXYGEN_ACTIVE
+#if TN_PROFILER_WAIT_TIME || defined(DOXYGEN_ACTIVE)
    ///
    /// Available if only `#TN_PROFILER_WAIT_TIME` option is non-zero.
    ///
@@ -430,7 +430,7 @@ struct TN_Task {
    ///
    /// Task name for debug purposes, user may want to set it by hand
    const char *name;          
-#if TN_PROFILER || DOXYGEN_ACTIVE
+#if TN_PROFILER || defined(DOXYGEN_ACTIVE)
    /// Profiler data, available if only `#TN_PROFILER` is non-zero.
    struct _TN_TaskProfiler    profiler;
 #endif
@@ -553,7 +553,7 @@ enum TN_RCode tn_task_create(
       TN_TaskBody            *task_func,
       int                     priority,
       TN_UWord               *task_stack_low_addr,
-      int                     task_stack_size,
+      unsigned int            task_stack_size,
       void                   *param,
       enum TN_TaskCreateOpt   opts
       );
@@ -568,7 +568,7 @@ enum TN_RCode tn_task_create_wname(
       TN_TaskBody            *task_func,
       int                     priority,
       TN_UWord               *task_stack_low_addr,
-      int                     task_stack_size,
+      unsigned int            task_stack_size,
       void                   *param,
       enum TN_TaskCreateOpt   opts,
       const char             *name
@@ -867,7 +867,7 @@ enum TN_RCode tn_task_state_get(
       enum TN_TaskState *p_state
       );
 
-#if TN_PROFILER || DOXYGEN_ACTIVE
+#if TN_PROFILER || defined(DOXYGEN_ACTIVE)
 /**
  * Read profiler timing data of the task. See `struct #TN_TaskTiming` for
  * details on timing data.

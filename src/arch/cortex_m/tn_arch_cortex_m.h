@@ -107,10 +107,16 @@ int ffs_asm(int x);
 
 #if defined(__TN_COMPILER_IAR__)
 #  define  _TN_FATAL_ERRORF(error_msg, ...)         \
-      {asm("bkpt #0");}
+      asm("bkpt #0")
 #else
 #  define  _TN_FATAL_ERRORF(error_msg, ...)         \
-      {__asm__ volatile("bkpt #0");}
+      __asm__ volatile("bkpt #0")
+#endif
+      
+#if defined(__TN_COMPILER_IAR__)
+#  define  _DUMMY asm("")
+#else
+#  define  _DUMMY __asm__ volatile("")
 #endif
 
 
@@ -230,7 +236,7 @@ typedef  unsigned int               TN_UIntPtr;
  * @see `TN_INT_RESTORE()`
  */
 #define  TN_INTSAVE_DATA            \
-   TN_UWord TN_INTSAVE_VAR = _TN_CORTEX_INTSAVE_DATA_INVALID;
+   TN_UWord TN_INTSAVE_VAR = _TN_CORTEX_INTSAVE_DATA_INVALID
 
 /**
  * The same as `#TN_INTSAVE_DATA` but for using in ISR together with
