@@ -108,7 +108,11 @@ volatile unsigned int _tn_ready_to_run_bmp;
 // See comments in the internal/_tn_sys.h file
 struct TN_Task _tn_idle_task;
 
+// See comments in the internal/_tn_sys.h file
+volatile TN_UWord *_tn_int_stack;
 
+// See comments in the internal/_tn_sys.h file
+volatile unsigned int _tn_int_stack_size;
 
 
 
@@ -525,6 +529,10 @@ void tn_sys_start(
    unsigned int i;
    enum TN_RCode rc;
 
+   //-- init profiling variables
+   _tn_int_stack = int_stack;
+   _tn_int_stack_size = int_stack_size;
+    
    //-- init timers
    _tn_timers_init();
 
