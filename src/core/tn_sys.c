@@ -544,23 +544,22 @@ void tn_sys_start(
    //   - reset list of runnable tasks with this priority
    //   - reset time slice to `#TN_NO_TIME_SLICE`
    for (i = 0; i < TN_PRIORITIES_CNT; i++){
-      _tn_list_reset(&(_tn_tasks_ready_list[i]));
+      if (!_tn_list_is_initialized(&(_tn_tasks_ready_list[i]))){
+         _tn_list_reset(&(_tn_tasks_ready_list[i]));
+      }
       _tn_tslice_ticks[i] = TN_NO_TIME_SLICE;
    }
 
    //-- reset generic task queue and task count to 0
-   _tn_list_reset(&_tn_tasks_created_list);
-   _tn_tasks_created_cnt = 0;
+   if (!_tn_list_is_initialized(&_tn_tasks_created_list)){
+      _tn_list_reset(&_tn_tasks_created_list);
+   }
 
    //-- initial system flags: no flags set (see enum TN_StateFlag)
    _tn_sys_state = (enum TN_StateFlag)(0);  
 
    //-- reset bitmask of priorities with runnable tasks
    _tn_ready_to_run_bmp = 0;
-
-   //-- reset pointers to currently running task and next task to run
-   _tn_next_task_to_run = TN_NULL;
-   _tn_curr_run_task    = TN_NULL;
 
    //-- remember user-provided callbacks
    _tn_cb_idle_hook = cb_idle;
@@ -589,7 +588,9 @@ void tn_sys_start(
    }
 
    //-- Just for the _tn_task_set_runnable() proper operation
-   _tn_next_task_to_run = &_tn_idle_task; 
+   if (_tn_next_task_to_run == TN_NULL){
+      _tn_next_task_to_run = &_tn_idle_task;
+   }       
 
    //-- make system tasks runnable
    rc = _tn_task_activate(&_tn_idle_task);

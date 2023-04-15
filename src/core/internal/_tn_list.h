@@ -461,6 +461,11 @@ extern "C"  {     /*}*/
  ******************************************************************************/
 
 /**
+ * Checks whether the list is initialized.
+ */
+TN_BOOL _tn_list_is_initialized(struct TN_ListItem *list);
+
+/**
  * Reset the list: make next and prev items to reference the list itself.
  * As a result, we got empty list.
  */

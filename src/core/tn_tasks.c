@@ -503,6 +503,9 @@ enum TN_RCode tn_task_create(
    _tn_task_set_dormant(task);
 
    //-- Add task to created task queue
+   if (!_tn_list_is_initialized(&_tn_tasks_created_list)){
+      _tn_list_reset(&_tn_tasks_created_list);
+   }
    _tn_list_add_tail(&_tn_tasks_created_list, &(task->create_queue));
    _tn_tasks_created_cnt++;
 
@@ -931,6 +934,9 @@ void _tn_task_set_runnable(struct TN_Task * task)
    task->task_state  |= TN_TASK_STATE_RUNNABLE;
 
    //-- Add the task to the end of 'ready queue' for the current priority
+   if (!_tn_list_is_initialized(&(_tn_tasks_ready_list[priority]))){
+      _tn_list_reset(&(_tn_tasks_ready_list[priority]));
+   }
    _add_entry_to_ready_queue(&(task->task_queue), priority);
 
    //-- less value - greater priority, so '<' operation is used here

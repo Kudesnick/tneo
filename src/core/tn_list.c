@@ -44,6 +44,14 @@
 /*
  * See comments in the header file tn_list.h
  */
+_TN_MAX_INLINED_FUNC TN_BOOL _tn_list_is_initialized(struct TN_ListItem *list)
+{
+   return (list->next != TN_NULL && list->prev != TN_NULL);
+}
+
+/*
+ * See comments in the header file tn_list.h
+ */
 _TN_MAX_INLINED_FUNC void _tn_list_reset(struct TN_ListItem *list)
 {
    list->prev = list->next = list;
