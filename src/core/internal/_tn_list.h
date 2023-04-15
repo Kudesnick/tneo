@@ -154,7 +154,7 @@ extern "C"  {     /*}*/
  * Note that if the list is empty, it returns TN_NULL.
  */
 #define _tn_list_first_entry_or_null(ptr, type, member)                   \
-   (!_tn_list_empty(ptr) \
+   (!_tn_list_is_empty(ptr) \
     ? _tn_list_first_entry(ptr, type, member) \
     : TN_NULL)
 

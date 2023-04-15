@@ -106,9 +106,6 @@ struct TN_Task *_tn_curr_run_task;
 volatile unsigned int _tn_ready_to_run_bmp;
 
 // See comments in the internal/_tn_sys.h file
-struct TN_Task _tn_idle_task;
-
-// See comments in the internal/_tn_sys.h file
 volatile TN_UWord *_tn_int_stack;
 
 // See comments in the internal/_tn_sys.h file
@@ -125,10 +122,6 @@ volatile unsigned int _tn_int_stack_size;
  * `static` actually, but for easier debug they are left global.
  */
 
-
-/// Pointer to user idle callback function, it gets called regularly
-/// from the idle task.
-static TN_CBIdle *_tn_cb_idle_hook = TN_NULL;
 
 /// Pointer to stack overflow callback function. When stack overflow
 /// is detected by the kernel, this function gets called.
@@ -167,19 +160,6 @@ extern void you_should_add_file___tn_app_check_c___to_the_project(void);
 /*******************************************************************************
  *    PRIVATE FUNCTIONS
  ******************************************************************************/
-
-/**
- * Idle task body. In fact, this task is always in RUNNABLE state.
- */
-__attribute__ ((noreturn)) static void _idle_task_body(void *par)
-{
-   //-- enter endless loop with calling user-provided hook function
-   for(;;)
-   {
-      _tn_cb_idle_hook();
-   }
-   _TN_UNUSED(par);
-}
 
 /**
  * Manage round-robin (if used)
@@ -393,27 +373,6 @@ _TN_STATIC_INLINE void _tn_sys_stack_overflow_check(
 #endif
 
 /**
- * Create idle task, the task is NOT started after creation.
- */
-_TN_STATIC_INLINE enum TN_RCode _idle_task_create(
-      TN_UWord      *idle_task_stack,
-      unsigned int   idle_task_stack_size
-      )
-{
-   return tn_task_create_wname(
-         (struct TN_Task*)&_tn_idle_task, //-- task TCB
-         _idle_task_body,                 //-- task function
-         TN_PRIORITIES_CNT - 1,           //-- task priority
-         idle_task_stack,                 //-- task stack
-         idle_task_stack_size,            //-- task stack size
-                                          //   (in int, not bytes)
-         TN_NULL,                         //-- task function parameter
-         (_TN_TASK_CREATE_OPT_IDLE),      //-- Creation option
-         "Idle"                           //-- Task name
-         );
-}
-
-/**
  * If enabled, define a function which ensures that build-time options for the
  * kernel match the ones for the application.
  *
@@ -518,16 +477,12 @@ static inline void _build_cfg_check(void) {}
  * See comments in the header file (tn_sys.h)
  */
 void tn_sys_start(
-      TN_UWord            *idle_task_stack,
-      unsigned int         idle_task_stack_size,
       TN_UWord            *int_stack,
       unsigned int         int_stack_size,
-      TN_CBUserTaskCreate *cb_user_task_create,
-      TN_CBIdle           *cb_idle
+      TN_CBUserTaskCreate *cb_user_task_create
       )
 {
    unsigned int i;
-   enum TN_RCode rc;
 
    //-- init profiling variables
    _tn_int_stack = int_stack;
@@ -558,12 +513,6 @@ void tn_sys_start(
    //-- initial system flags: no flags set (see enum TN_StateFlag)
    _tn_sys_state = (enum TN_StateFlag)(0);  
 
-   //-- reset bitmask of priorities with runnable tasks
-   _tn_ready_to_run_bmp = 0;
-
-   //-- remember user-provided callbacks
-   _tn_cb_idle_hook = cb_idle;
-
    //-- Fill interrupt stack space with TN_FILL_STACK_VAL
 #if TN_INIT_INTERRUPT_STACK_SPACE
    for (i = 0; i < int_stack_size; i++){
@@ -581,28 +530,18 @@ void tn_sys_start(
     *       so, it's better to just separate these steps and avoid any tricks.
     */
 
-   //-- create system tasks
-   rc = _idle_task_create(idle_task_stack, idle_task_stack_size);
-   if (rc != TN_RC_OK){
-      _TN_FATAL_ERROR("failed to create idle task");
-   }
-
    //-- Just for the _tn_task_set_runnable() proper operation
+#if TN_DEBUG
    if (_tn_next_task_to_run == TN_NULL){
-      _tn_next_task_to_run = &_tn_idle_task;
-   }       
-
-   //-- make system tasks runnable
-   rc = _tn_task_activate(&_tn_idle_task);
-   if (rc != TN_RC_OK){
-      _TN_FATAL_ERROR("failed to activate idle task");
+      _TN_FATAL_ERROR("");
    }
+#endif
 
    //-- set _tn_curr_run_task to idle task
-   _tn_curr_run_task = &_tn_idle_task;
+   _tn_curr_run_task = _tn_next_task_to_run;
 #if TN_PROFILER
 #if TN_DEBUG
-   _tn_idle_task.profiler.is_running = 1;
+   _tn_curr_run_task->profiler.is_running = 1;
 #endif
 #endif
 

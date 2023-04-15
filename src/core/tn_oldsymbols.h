@@ -455,8 +455,6 @@ typedef struct TN_EventGrp    TN_EVENT;
 
 #define tn_ready_to_run_bmp   _tn_ready_to_run_bmp
 
-#define tn_idle_task          _tn_idle_task
-
 #endif
 
 //}}}

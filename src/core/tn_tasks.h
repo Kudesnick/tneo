@@ -216,21 +216,6 @@ enum TN_WaitReason {
 };
 
 /**
- * Options for `tn_task_create()`
- */
-enum TN_TaskCreateOpt {
-   ///
-   /// whether task should be activated right after it is created.
-   /// If this flag is not set, user must activate task manually by calling
-   /// `tn_task_activate()`.
-   TN_TASK_CREATE_OPT_START = (1 << 0),
-   ///
-   /// for internal kernel usage only: this option must be provided
-   /// when creating idle task
-   _TN_TASK_CREATE_OPT_IDLE = (1 << 1),
-};
-
-/**
  * Options for `tn_task_exit()`
  */
 enum TN_TaskExitOpt {
@@ -536,8 +521,6 @@ struct TN_Task {
  *    Size of task stack array, in words (`#TN_UWord`), not in bytes.
  * @param param 
  *    Parameter that is passed to `task_func`.
- * @param opts 
- *    Options for task creation, refer to `enum #TN_TaskCreateOpt`
  *
  * @return
  *    * `#TN_RC_OK` on success;
@@ -554,8 +537,7 @@ enum TN_RCode tn_task_create(
       int                     priority,
       TN_UWord               *task_stack_low_addr,
       unsigned int            task_stack_size,
-      void                   *param,
-      enum TN_TaskCreateOpt   opts
+      void                   *param
       );
 
 
@@ -570,7 +552,6 @@ enum TN_RCode tn_task_create_wname(
       TN_UWord               *task_stack_low_addr,
       unsigned int            task_stack_size,
       void                   *param,
-      enum TN_TaskCreateOpt   opts,
       const char             *name
       );
 

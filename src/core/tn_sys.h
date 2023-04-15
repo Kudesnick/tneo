@@ -294,33 +294,6 @@ enum TN_Context {
 typedef void (TN_CBUserTaskCreate)(void);
 
 /**
- * User-provided callback function which is called repeatedly from the idle
- * task loop. Make sure that idle task has enough stack space to call this
- * function.
- *
- * Typically, this callback can be used for things like:
- *
- *   * MCU sleep/idle mode. When system has nothing to do, it often makes sense
- *     to bring processor to some power-saving mode. Of course, the application
- *     is responsible for setting some condition to wake up: typically, it's an
- *     interrupt.
- *   * Calculation of system load. The easiest implementation is to just
- *     increment some variable in the idle task. The faster value grows, the
- *     less busy system is.
- *
- * \attention 
- *    * From withing this callback, it is illegal to invoke `#tn_task_sleep()`
- *      or any other service which could put task to waiting state, because
- *      idle task (from which this function is called) should always be
- *      runnable, by design. If `#TN_DEBUG` option is set, then this is
- *      checked, so if idle task becomes non-runnable, `_TN_FATAL_ERROR()`
- *      macro will be called.
- *
- * @see `tn_sys_start()`
- */
-typedef void (TN_CBIdle)(void);
-
-/**
  * User-provided callback function that is called when the kernel detects stack
  * overflow (see `#TN_STACK_OVERFLOW_CHECK`).
  *
@@ -387,13 +360,6 @@ typedef void (TN_CBDeadlock)(
  * $(TN_CALL_FROM_MAIN)
  * $(TN_LEGEND_LINK)
  *
- * @param   idle_task_stack      
- *    Pointer to array for idle task stack. 
- *    User must either use the macro `TN_STACK_ARR_DEF()` for the definition
- *    of stack array, or allocate it manually as an array of `#TN_UWord` with
- *    `#TN_ARCH_STK_ATTR_BEFORE` and `#TN_ARCH_STK_ATTR_AFTER` macros.
- * @param   idle_task_stack_size 
- *    Size of idle task stack, in words (`#TN_UWord`)
  * @param   int_stack            
  *    Pointer to array for interrupt stack.
  *    User must either use the macro `TN_STACK_ARR_DEF()` for the definition
@@ -404,17 +370,11 @@ typedef void (TN_CBDeadlock)(
  * @param   cb_user_task_create
  *    Callback function that should create initial user's task, see
  *    `#TN_CBUserTaskCreate` for details.
- * @param   cb_idle              
- *    Callback function repeatedly called from idle task, see `#TN_CBIdle` for
- *    details.
  */
 void tn_sys_start(
-      TN_UWord            *idle_task_stack,
-      unsigned int         idle_task_stack_size,
       TN_UWord            *int_stack,
       unsigned int         int_stack_size,
-      TN_CBUserTaskCreate *cb_user_task_create,
-      TN_CBIdle           *cb_idle
+      TN_CBUserTaskCreate *cb_user_task_create
       );
 
 /**

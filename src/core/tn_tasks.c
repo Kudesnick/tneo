@@ -410,23 +410,13 @@ enum TN_RCode tn_task_create(
       int                     priority,
       TN_UWord               *task_stack_low_addr,
       unsigned int            task_stack_size,
-      void                   *param,
-      enum TN_TaskCreateOpt   opts
+      void                   *param
       )
 {
    TN_INTSAVE_DATA;
-   enum TN_RCode rc;
    enum TN_Context context;
 
    unsigned int i;
-
-   //-- Lightweight checking of system tasks recreation
-   if (     priority == (TN_PRIORITIES_CNT - 1)
-         && !(opts & _TN_TASK_CREATE_OPT_IDLE)
-      )
-   {
-      return TN_RC_WPARAM;
-   }
 
    if (0
          || (priority < 0 || priority > (TN_PRIORITIES_CNT - 1))
@@ -439,8 +429,6 @@ enum TN_RCode tn_task_create(
    {
       return TN_RC_WPARAM;
    }
-
-   rc = TN_RC_OK;
 
    context = tn_sys_context_get();
 
@@ -509,18 +497,14 @@ enum TN_RCode tn_task_create(
    _tn_list_add_tail(&_tn_tasks_created_list, &(task->create_queue));
    _tn_tasks_created_cnt++;
 
-   if ((opts & TN_TASK_CREATE_OPT_START)){
-      _tn_task_activate(task);
-   }
+   _tn_task_activate(task);
 
    if (context == TN_CONTEXT_TASK){
       TN_INT_RESTORE();
-      if ((opts & TN_TASK_CREATE_OPT_START)){
-         _tn_context_switch_pend_if_needed();
-      }
+      _tn_context_switch_pend_if_needed();
    }
 
-   return rc;
+   return TN_RC_OK;
 }
 
 
@@ -531,13 +515,12 @@ enum TN_RCode tn_task_create_wname(
       TN_UWord               *task_stack_low_addr,
       unsigned int            task_stack_size,
       void                   *param,
-      enum TN_TaskCreateOpt   opts,
       const char             *name
       )
 {
    enum TN_RCode ret = tn_task_create(
          task, task_func, priority, task_stack_low_addr, task_stack_size,
-         param, opts
+         param
          );
 
    //-- if task was successfully created, set the name
@@ -956,7 +939,7 @@ void _tn_task_clear_runnable(struct TN_Task *task)
       _TN_FATAL_ERROR("");
    }
 
-   if (task == &_tn_idle_task){
+   if (task->base_priority == TN_PRIORITIES_CNT - 1){
       //-- idle task should always be runnable
       _TN_FATAL_ERROR("idle task should always be runnable");
    }

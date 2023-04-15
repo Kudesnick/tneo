@@ -86,9 +86,6 @@ extern struct TN_Task *_tn_next_task_to_run;
 /// by design.
 extern volatile unsigned int _tn_ready_to_run_bmp;
 
-/// idle task structure
-extern struct TN_Task _tn_idle_task;
-
 /// Pointer to array for interrupt stack (now it is used for profiling only)
 extern volatile TN_UWord *_tn_int_stack;
 
