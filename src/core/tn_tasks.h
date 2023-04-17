@@ -219,12 +219,13 @@ enum TN_WaitReason {
  * Options for `tn_task_exit()`
  */
 enum TN_TaskExitOpt {
+   TN_TASK_EXIT_OPT_NO_DELETE = (0),
    ///
    /// whether task should be deleted right after it is exited.
    /// If this flag is not set, user must either delete it manually by
    /// calling `tn_task_delete()` or re-activate it by calling
    /// `tn_task_activate()`.
-   TN_TASK_EXIT_OPT_DELETE = (1 << 0),
+   TN_TASK_EXIT_OPT_DELETE    = (1 << 0),
 };
 
 #if TN_PROFILER || defined(DOXYGEN_ACTIVE)
