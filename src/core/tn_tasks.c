@@ -66,8 +66,8 @@
 
 #if TN_USE_SCVD
    // Fake structure to work correctly Event Recorder and Component Viewer
-   extern volatile const struct TN_Task _tn_debug_task;
-   volatile const struct TN_Task _tn_debug_task;
+   extern volatile const struct TN_Task _tn_scvd_task;
+   volatile const struct TN_Task _tn_scvd_task;
 #endif
 
 /*******************************************************************************
@@ -434,7 +434,7 @@ enum TN_RCode tn_task_create(
          || task_stack_low_addr == TN_NULL
          || _tn_task_is_valid(task)
 #if TN_USE_SCVD
-         || task == &_tn_debug_task
+         || task == &_tn_scvd_task
 #endif
       )
    {

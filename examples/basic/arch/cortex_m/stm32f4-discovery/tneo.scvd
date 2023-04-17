@@ -96,7 +96,7 @@
     </typedef>
 
     <!-- Task -->
-    <typedef name="TN_Task" size="1024" info="" import="_tn_debug_task">
+    <typedef name="TN_Task" size="1024" info="" import="_tn_scvd_task">
       <member name="stack_cur_pt"     type="uint32_t"       info="uint32_t*"/>
       <member name="id_task"          type="uint32_t"       info="TN_ObjId"/>
       <member name="task_queue"       type="uint32_t"       info="TN_ListItem"/>
