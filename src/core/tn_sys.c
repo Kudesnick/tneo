@@ -540,7 +540,9 @@ void tn_sys_start(
 
    //-- now, we can create user's task(s)
    //   (by user-provided callback)
-   cb_user_task_create();
+   if (cb_user_task_create){
+      cb_user_task_create();
+   }
 
    //-- set flag that system is running
    //   (well, it will be running soon actually)
