@@ -587,11 +587,9 @@ enum TN_RCode tn_sys_tslice_set(int priority, int ticks)
 {
    enum TN_RCode rc = TN_RC_OK;
 
-   if (!tn_is_task_context()){
-      rc = TN_RC_WCONTEXT;
-   } else if (0
-         || priority < 0 || priority >= (TN_PRIORITIES_CNT - 1)
-         || ticks    < 0 || ticks    >   TN_MAX_TIME_SLICE)
+   if (0
+       || priority < 0 || priority >= (TN_PRIORITIES_CNT - 1)
+       || ticks    < 0 || ticks    >   TN_MAX_TIME_SLICE)
    {
       rc = TN_RC_WPARAM;
    } else {
