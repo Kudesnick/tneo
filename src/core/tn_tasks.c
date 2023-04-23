@@ -658,6 +658,31 @@ enum TN_RCode tn_task_sleep(TN_TickCnt timeout)
 /*
  * See comments in the header file (tn_tasks.h)
  */
+enum TN_RCode tn_task_yield(void)
+{
+   enum TN_RCode rc;
+
+   if (!tn_is_task_context()){
+      rc = TN_RC_WCONTEXT;
+   } else {
+      TN_INTSAVE_DATA;
+
+      TN_INT_DIS_SAVE();
+
+      //-- put task to wait with reason SLEEP and without wait queue.
+      _tn_curr_run_task->task_state |= TN_TASK_STATE_YIELD;
+
+      TN_INT_RESTORE();
+      _tn_context_switch_pend_if_needed();
+      rc = TN_RC_OK;
+   }
+
+   return rc;
+}
+
+/*
+ * See comments in the header file (tn_tasks.h)
+ */
 enum TN_RCode tn_task_wakeup(struct TN_Task *task)
 {
    return _task_job_perform(task, _task_wakeup);
@@ -1004,8 +1029,6 @@ void _tn_task_set_waiting(
    //-- only SUSPEND bit is allowed here
    if (task->task_state & ~(TN_TASK_STATE_SUSPEND)){
       _TN_FATAL_ERROR("");
-   } else if (timeout == 0){
-      _TN_FATAL_ERROR("");
    } else if (_tn_timer_is_active(&task->timer)){
       _TN_FATAL_ERROR("");
    }
@@ -1027,6 +1050,7 @@ void _tn_task_set_waiting(
       //   it is already reset in _tn_task_clear_runnable().
    }
 
+   if (timeout)
    //-- Add to the timers queue, if timeout is neither 0 nor `TN_WAIT_INFINITE`.
    _tn_timer_start(&task->timer, timeout);
 }

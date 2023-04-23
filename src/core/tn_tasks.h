@@ -163,7 +163,21 @@ enum TN_TaskState {
    /// Task isn't yet activated or it was terminated by `tn_task_terminate()`.
    TN_TASK_STATE_DORMANT      = (1 << 3),
 
-
+   ///
+   /// Task is waiting for a forced context switch to the next task of the same
+   /// priority.
+   ///
+   /// @see tn_task_yield()
+   TN_TASK_STATE_YIELD        = (1 << 4),
+   
+   ///
+   /// Simultaneous setting of flags `TN_TASK_STATE_RUNNABLE` and
+   /// `TN_TASK_STATE_YIELD`. Occurs because setting the flag
+   /// `TN_TASK_STATE_YIELD` does not change the state of the flags set by
+   /// other functions.
+   ///
+   /// @see tn_task_yield()
+   TN_TASK_STATE_RUNTOYIELD   = (TN_TASK_STATE_RUNNABLE | TN_TASK_STATE_YIELD)
 };
 
 
@@ -628,6 +642,18 @@ enum TN_RCode tn_task_resume(struct TN_Task *task);
  * @see TN_TickCnt
  */
 enum TN_RCode tn_task_sleep(TN_TickCnt timeout);
+
+/**
+ * Forced context switch to the next task of the same priority.
+ *
+ * $(TN_CALL_FROM_TASK)
+ * $(TN_LEGEND_LINK)
+ *
+ * @returns
+ *    * `#TN_RC_OK` if task was woken up from other task
+ *    * `#TN_RC_WCONTEXT` if called from wrong context
+ */
+enum TN_RCode tn_task_yield(void);
 
 /**
  * Wake up task from sleep.

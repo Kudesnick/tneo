@@ -231,6 +231,10 @@ struct _TN_BuildCfg {
  */
 enum TN_StateFlag {
    ///
+   /// system is not initialized
+   TN_STATE_FLAG__SYS_NOINIT     = (0),
+    
+   ///
    /// system is running
    TN_STATE_FLAG__SYS_RUNNING    = (1 << 0),
    ///
