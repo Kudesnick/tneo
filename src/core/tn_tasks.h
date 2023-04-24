@@ -625,7 +625,7 @@ enum TN_RCode tn_task_resume(struct TN_Task *task);
  * call (like `tn_task_wakeup()` or similar) will make it runnable.
  *
  * $(TN_CALL_FROM_TASK)
- * $(TN_CAN_SWITCH_CONTEXT)
+с
  * $(TN_CAN_SLEEP)
  * $(TN_LEGEND_LINK)
  *
@@ -647,6 +647,7 @@ enum TN_RCode tn_task_sleep(TN_TickCnt timeout);
  * Forced context switch to the next task of the same priority.
  *
  * $(TN_CALL_FROM_TASK)
+ * $(TN_CAN_SWITCH_CONTEXT)
  * $(TN_LEGEND_LINK)
  *
  * @returns
