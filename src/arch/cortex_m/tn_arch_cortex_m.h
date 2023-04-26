@@ -207,7 +207,7 @@ typedef  unsigned int               TN_UIntPtr;
  * Value for infinite waiting, usually matches `ULONG_MAX`,
  * because `#TN_TickCnt` is declared as `unsigned long`.
  */
-#define  TN_WAIT_INFINITE           (TN_TickCnt)0xFFFFFFFF
+#define  TN_WAIT_INFINITE           0xFFFFFFFF
 
 /**
  * Value for initializing the task's stack
