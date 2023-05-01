@@ -83,8 +83,8 @@ _TN_STATIC_INLINE enum TN_RCode _check_param_generic(
  */
 _TN_STATIC_INLINE enum TN_RCode _check_param_create(
       const struct TN_Sem *sem,
-      int start_count,
-      int max_count
+      unsigned int start_count,
+      unsigned int max_count
       )
 {
    enum TN_RCode rc = TN_RC_OK;
@@ -94,7 +94,6 @@ _TN_STATIC_INLINE enum TN_RCode _check_param_create(
    } else if (0
          || _tn_sem_is_valid(sem)
          || max_count <= 0
-         || start_count < 0
          || start_count > max_count
          )
    {
@@ -246,8 +245,8 @@ _TN_STATIC_INLINE enum TN_RCode _sem_wait(struct TN_Sem *sem)
  */
 enum TN_RCode tn_sem_create(
       struct TN_Sem *sem,
-      int start_count,
-      int max_count
+      unsigned int start_count,
+      unsigned int max_count
       )
 {
    //-- perform additional params checking (if enabled by TN_CHECK_PARAM)

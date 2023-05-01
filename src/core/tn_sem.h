@@ -96,10 +96,10 @@ struct TN_Sem {
    struct TN_ListItem wait_queue;
    ///
    /// Current semaphore counter value
-   int count;
+   unsigned int count;
    ///
    /// Max value of `count`
-   int max_count;
+   unsigned int max_count;
 };
 
 
@@ -137,8 +137,8 @@ struct TN_Sem {
  */
 enum TN_RCode tn_sem_create(
       struct TN_Sem *sem,
-      int start_count,
-      int max_count
+      unsigned int start_count,
+      unsigned int max_count
       );
 
 /**
