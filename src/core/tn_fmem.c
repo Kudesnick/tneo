@@ -331,7 +331,7 @@ enum TN_RCode tn_fmem_create(
       for (i = 0; i < (fmem->blocks_cnt - 1); i++){
          *p_tmp  = (void *)p_block;  //-- contents of cell = addr of next block
          p_tmp   = (void **)p_block;
-         p_block += fmem->block_size;
+         p_block += fmem->block_size / sizeof(TN_UWord);
       }
       *p_tmp = TN_NULL;          //-- Last memory block first cell contents -  TN_NULL
 
