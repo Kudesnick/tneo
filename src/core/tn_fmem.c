@@ -274,7 +274,7 @@ enum TN_RCode tn_fmem_create(
       struct TN_FMem   *fmem,
       void             *start_addr,
       unsigned int      block_size,
-      int               blocks_cnt
+      unsigned int      blocks_cnt
       )
 {
    enum TN_RCode rc;
@@ -324,7 +324,7 @@ enum TN_RCode tn_fmem_create(
    {
       void **p_tmp;
       TN_UWord *p_block;
-      int i;
+      unsigned int i;
 
       p_tmp    = (void **)fmem->start_addr;
       p_block  = (TN_UWord *)fmem->start_addr + (fmem->block_size / sizeof(TN_UWord));
@@ -463,9 +463,7 @@ enum TN_RCode tn_fmem_iget_polling(struct TN_FMem *fmem, void **p_data)
 
    if (rc != TN_RC_OK){
       //-- just return rc as it is
-   } else if (!tn_is_isr_context()){
-      rc = TN_RC_WCONTEXT;
-   } else {
+   } else if (tn_sys_context_get() == TN_CONTEXT_ISR) {
       TN_INTSAVE_DATA_INT;
 
       TN_INT_IDIS_SAVE();
@@ -474,7 +472,12 @@ enum TN_RCode tn_fmem_iget_polling(struct TN_FMem *fmem, void **p_data)
 
       TN_INT_IRESTORE();
       _TN_CONTEXT_SWITCH_IPEND_IF_NEEDED();
+   } else if (tn_sys_context_get() == TN_CONTEXT_NONE) {
+      rc = _fmem_get(fmem, p_data);
+   } else {
+      rc = TN_RC_WCONTEXT;
    }
+
    return rc;
 }
 
@@ -540,7 +543,7 @@ int tn_fmem_free_blocks_cnt_get(struct TN_FMem *fmem)
    if (rc == TN_RC_OK){
       //-- It's not needed to disable interrupts here, since `free_blocks_cnt`
       //   is read by just one assembler instruction
-      ret = fmem->free_blocks_cnt;
+      ret = (int)fmem->free_blocks_cnt;
    }
 
    return ret;
@@ -558,7 +561,7 @@ int tn_fmem_used_blocks_cnt_get(struct TN_FMem *fmem)
       //-- It's not needed to disable interrupts here, since `free_blocks_cnt`
       //   is read by just one assembler instruction, and `blocks_cnt` never
       //   changes.
-      ret = fmem->blocks_cnt - fmem->free_blocks_cnt;
+      ret = (int)(fmem->blocks_cnt - fmem->free_blocks_cnt);
    }
 
    return ret;

@@ -95,10 +95,10 @@ struct TN_FMem {
    unsigned int         block_size;
    ///
    /// capacity (total blocks count)
-   int                  blocks_cnt;
+   unsigned int         blocks_cnt;
    ///
    /// free blocks count
-   int                  free_blocks_cnt;
+   unsigned int         free_blocks_cnt;
    ///
    /// memory pool start address; note that it should be a multiple of
    /// `sizeof(#TN_UWord)`.
@@ -222,7 +222,7 @@ enum TN_RCode tn_fmem_create(
       struct TN_FMem   *fmem,
       void             *start_addr,
       unsigned int      block_size,
-      int               blocks_cnt
+      unsigned int      blocks_cnt
       );
 
 /**
