@@ -330,6 +330,25 @@ enum TN_RCode tn_fmem_release(struct TN_FMem *fmem, void *p_data);
 enum TN_RCode tn_fmem_irelease(struct TN_FMem *fmem, void *p_data);
 
 /**
+ * The same as `tn_fmem_release()`, but add a new block to the list
+ *    that did not belong to the pool before.
+ *
+ * $(TN_CALL_FROM_ISR)
+ * $(TN_CAN_SWITCH_CONTEXT)
+ * $(TN_LEGEND_LINK)
+ */
+enum TN_RCode tn_fmem_append(struct TN_FMem *fmem, void *p_data);
+
+/**
+ * The same as `tn_fmem_append()`, but for using in the ISR.
+ *
+ * $(TN_CALL_FROM_ISR)
+ * $(TN_CAN_SWITCH_CONTEXT)
+ * $(TN_LEGEND_LINK)
+ */
+enum TN_RCode tn_fmem_iappend(struct TN_FMem *fmem, void *p_data);
+
+/**
  * Returns number of free blocks in the memory pool
  *
  * $(TN_CALL_FROM_TASK)

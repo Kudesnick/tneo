@@ -213,7 +213,10 @@ _TN_STATIC_INLINE enum TN_RCode _fmem_get(struct TN_FMem *fmem, void **p_data)
  * @param fmem
  *    Memory pool
  * @param p_data
- *    Pointer to the memory block to release.
+ *    Pointer to the memory block to release
+ * @param append_new
+ *    If true, then increment the block counter. In fact, add a new block to the list
+ *    that did not belong to the pool before.
  *
  * @return
  *    - `#TN_RC_OK`, if operation was successful
@@ -221,10 +224,15 @@ _TN_STATIC_INLINE enum TN_RCode _fmem_get(struct TN_FMem *fmem, void **p_data)
  *      This may never happen in normal program execution; if that happens,
  *      it's a programmer's mistake.
  */
-_TN_STATIC_INLINE enum TN_RCode _fmem_release(struct TN_FMem *fmem, void *p_data)
+_TN_STATIC_INLINE enum TN_RCode _fmem_release(struct TN_FMem *fmem, void *p_data, TN_BOOL append_new)
 {
    enum TN_RCode rc = TN_RC_OK;
 
+   //-- Add a new block
+   if (append_new == TN_TRUE){
+      fmem->blocks_cnt++;
+   }
+    
    //-- Check if there are tasks waiting for memory block. If there is,
    //   give the block to the first task from the queue.
    if (  !_tn_task_first_wait_complete(
@@ -259,9 +267,71 @@ _TN_STATIC_INLINE enum TN_RCode _fmem_release(struct TN_FMem *fmem, void *p_data
    return rc;
 }
 
+/**
+ * Release memory block back to the pool. The kernel does not check the 
+ * validity of the membership of given block in the memory pool.
+ * If all the memory blocks in the pool are free already, `#TN_RC_OVERFLOW`
+ * is returned.
+ *
+ * @param fmem
+ *    Pointer to memory pool.
+ * @param p_data
+ *    Address of the memory block to release.
+ * @param append_new
+ *    If true, then increment the block counter. In fact, add a new block to the list
+ *    that did not belong to the pool before.
+ *
+ * @return
+ *    * `#TN_RC_OK` on success
+ *    * `#TN_RC_WCONTEXT` if called from wrong context;
+ *    * If `#TN_CHECK_PARAM` is non-zero, additional return codes
+ *      are available: `#TN_RC_WPARAM` and `#TN_RC_INVALID_OBJ`.
+ */
+_TN_STATIC_INLINE enum TN_RCode _tn_fmem_release(struct TN_FMem *fmem, void *p_data, TN_BOOL append_new)
+{
+   enum TN_RCode rc = _check_param_job_perform(fmem, p_data);
 
+   if (rc != TN_RC_OK){
+      //-- just return rc as it is
+   } else if (!tn_is_task_context()){
+      rc = TN_RC_WCONTEXT;
+   } else {
+      TN_INTSAVE_DATA;
 
+      TN_INT_DIS_SAVE();
 
+      rc = _fmem_release(fmem, p_data, append_new);
+
+      TN_INT_RESTORE();
+      _tn_context_switch_pend_if_needed();
+   }
+   return rc;
+}
+
+/**
+ * The same as `_tn_fmem_release()`, but for using in the ISR.
+ */
+_TN_STATIC_INLINE enum TN_RCode _tn_fmem_irelease(struct TN_FMem *fmem, void *p_data, TN_BOOL append_new)
+{
+   enum TN_RCode rc = _check_param_job_perform(fmem, p_data);
+
+   if (rc != TN_RC_OK){
+      //-- just return rc as it is
+   } else if (!tn_is_isr_context()){
+      rc = TN_RC_WCONTEXT;
+   } else {
+      TN_INTSAVE_DATA_INT;
+
+      TN_INT_IDIS_SAVE();
+
+      rc = _fmem_release(fmem, p_data, append_new);
+
+      TN_INT_IRESTORE();
+      _TN_CONTEXT_SWITCH_IPEND_IF_NEEDED();
+   }
+
+   return rc;
+}
 
 /*******************************************************************************
  *    PUBLIC FUNCTIONS
@@ -487,23 +557,7 @@ enum TN_RCode tn_fmem_iget_polling(struct TN_FMem *fmem, void **p_data)
  */
 enum TN_RCode tn_fmem_release(struct TN_FMem *fmem, void *p_data)
 {
-   enum TN_RCode rc = _check_param_job_perform(fmem, p_data);
-
-   if (rc != TN_RC_OK){
-      //-- just return rc as it is
-   } else if (!tn_is_task_context()){
-      rc = TN_RC_WCONTEXT;
-   } else {
-      TN_INTSAVE_DATA;
-
-      TN_INT_DIS_SAVE();
-
-      rc = _fmem_release(fmem, p_data);
-
-      TN_INT_RESTORE();
-      _tn_context_switch_pend_if_needed();
-   }
-   return rc;
+   return _tn_fmem_release(fmem, p_data, TN_FALSE);
 }
 
 
@@ -512,25 +566,27 @@ enum TN_RCode tn_fmem_release(struct TN_FMem *fmem, void *p_data)
  */
 enum TN_RCode tn_fmem_irelease(struct TN_FMem *fmem, void *p_data)
 {
-   enum TN_RCode rc = _check_param_job_perform(fmem, p_data);
-
-   if (rc != TN_RC_OK){
-      //-- just return rc as it is
-   } else if (!tn_is_isr_context()){
-      rc = TN_RC_WCONTEXT;
-   } else {
-      TN_INTSAVE_DATA_INT;
-
-      TN_INT_IDIS_SAVE();
-
-      rc = _fmem_release(fmem, p_data);
-
-      TN_INT_IRESTORE();
-      _TN_CONTEXT_SWITCH_IPEND_IF_NEEDED();
-   }
-
-   return rc;
+   return _tn_fmem_irelease(fmem, p_data, TN_FALSE);
 }
+
+
+/*
+ * See comments in the header file (tn_dqueue.h)
+ */
+enum TN_RCode tn_fmem_append(struct TN_FMem *fmem, void *p_data)
+{
+   return _tn_fmem_release(fmem, p_data, TN_TRUE);
+}
+
+
+/*
+ * See comments in the header file (tn_dqueue.h)
+ */
+enum TN_RCode tn_fmem_iappend(struct TN_FMem *fmem, void *p_data)
+{
+   return _tn_fmem_irelease(fmem, p_data, TN_TRUE);
+}
+
 
 /*
  * See comments in the header file (tn_dqueue.h)
@@ -548,6 +604,7 @@ int tn_fmem_free_blocks_cnt_get(struct TN_FMem *fmem)
 
    return ret;
 }
+
 
 /*
  * See comments in the header file (tn_dqueue.h)
