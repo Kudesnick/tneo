@@ -321,7 +321,7 @@ enum TN_RCode tn_fmem_iget_polling(struct TN_FMem *fmem, void **p_data);
 enum TN_RCode tn_fmem_release(struct TN_FMem *fmem, void *p_data);
 
 /**
- * The same as `tn_fmem_get()`, but for using in the ISR.
+ * The same as `tn_fmem_release()`, but for using in the ISR.
  *
  * $(TN_CALL_FROM_ISR)
  * $(TN_CAN_SWITCH_CONTEXT)
