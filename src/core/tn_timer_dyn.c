@@ -216,10 +216,14 @@ void _tn_timers_init(void)
    }
 
    //-- reset "generic" timers list
-   _tn_list_reset(&_timer_list__gen);
+   if (!_tn_list_is_initialized(&_timer_list__gen)){
+      _tn_list_reset(&_timer_list__gen);
+   }
 
    //-- reset "current" timers list
-   _tn_list_reset(&_timer_list__fire);
+   if (!_tn_list_is_initialized(&_timer_list__fire)){
+      _tn_list_reset(&_timer_list__fire);
+   }
 }
 
 

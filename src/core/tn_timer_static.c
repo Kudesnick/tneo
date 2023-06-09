@@ -138,11 +138,15 @@ void _tn_timers_init(void)
    _tn_sys_time_count = 0;
 
    //-- reset "generic" timers list
-   _tn_list_reset(&_tn_timer_list__gen);
+   if (!_tn_list_is_initialized(&_tn_timer_list__gen)){
+      _tn_list_reset(&_tn_timer_list__gen);
+   }
 
    //-- reset all "tick" timer lists
    for (i = 0; i < TN_TICK_LISTS_CNT; i++){
-      _tn_list_reset(&_tn_timer_list__tick[i]);
+      if (!_tn_list_is_initialized(&_tn_timer_list__tick[i])){
+         _tn_list_reset(&_tn_timer_list__tick[i]);
+      }
    }
 }
 
@@ -264,15 +268,19 @@ enum TN_RCode _tn_timer_start(struct TN_Timer *timer, TN_TickCnt timeout)
             unsigned int tick_list_index = _TICK_LIST_INDEX(timeout);
             timer->timeout_cur = tick_list_index;
 
-            _tn_list_add_tail(
-                  &_tn_timer_list__tick[ tick_list_index ],
-                  &(timer->timer_queue)
-                  );
+            struct TN_ListItem *timer_list = &_tn_timer_list__tick[ tick_list_index ];
+            if (!_tn_list_is_initialized(timer_list)){
+               _tn_list_reset(timer_list);
+            }
+            _tn_list_add_tail(timer_list, &(timer->timer_queue));
          } else {
             //-- timer should be added to the "generic" list.
             //   We should set timeout_cur adding current "tick" index to it.
             timer->timeout_cur = timeout + _TICK_LIST_INDEX(0);
 
+            if (!_tn_list_is_initialized(&_tn_timer_list__gen)){
+               _tn_list_reset(&_tn_timer_list__gen);
+            }
             _tn_list_add_tail(&_tn_timer_list__gen, &(timer->timer_queue));
          }
       }
