@@ -186,7 +186,11 @@ typedef void (TN_TaskBody)(void *param);
  *   returned by the waiting function.  (the usage of the
  *   `tn_task_release_wait()` function is discouraged though)
  */
+#ifdef TIMESTAMP_TYPE
+typedef TIMESTAMP_TYPE TN_TickCnt;
+#else
 typedef unsigned long TN_TickCnt;
+#endif
 
 /*******************************************************************************
  *    PROTECTED GLOBAL DATA
