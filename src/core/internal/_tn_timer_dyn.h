@@ -63,25 +63,6 @@ extern "C"  {     /*}*/
  *    PROTECTED GLOBAL DATA
  ******************************************************************************/
 
-///
-/// $(TN_IF_ONLY_DYNAMIC_TICK_SET)
-///
-/// Callback function that should schedule next time to call 
-/// `tn_tick_int_processing()`.
-///
-/// See `#TN_CBTickSchedule` for the prototype.
-extern TN_CBTickSchedule      *_tn_cb_tick_schedule;
-///
-/// $(TN_IF_ONLY_DYNAMIC_TICK_SET)
-///
-/// Callback function that should return current system tick counter value.
-///
-/// See `#TN_CBTickCntGet` for the prototype.
-extern TN_CBTickCntGet        *_tn_cb_tick_cnt_get;
-
-
-
-
 /*******************************************************************************
  *    DEFINITIONS
  ******************************************************************************/
@@ -90,21 +71,6 @@ extern TN_CBTickCntGet        *_tn_cb_tick_cnt_get;
 /*******************************************************************************
  *    PROTECTED FUNCTION PROTOTYPES
  ******************************************************************************/
-
-/**
- * $(TN_IF_ONLY_DYNAMIC_TICK_SET)
- *
- * Set callbacks related to dynamic tick. This is actually a worker function
- * for public function `tn_callback_dyn_tick_set()`, so, you might want 
- * to refer to it for comments.
- */
-void _tn_timer_dyn_callback_set(
-      TN_CBTickSchedule   *cb_tick_schedule,
-      TN_CBTickCntGet     *cb_tick_cnt_get
-      );
-
-
-
 
 /*******************************************************************************
  *    PROTECTED INLINE FUNCTIONS
@@ -116,9 +82,8 @@ void _tn_timer_dyn_callback_set(
  */
 _TN_STATIC_INLINE TN_TickCnt _tn_timer_sys_time_get(void)
 {
-   return _tn_cb_tick_cnt_get();
+   return tn_cb_tick_cnt_get();
 }
-
 
 
 #ifdef __cplusplus

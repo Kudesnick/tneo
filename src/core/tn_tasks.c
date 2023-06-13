@@ -474,6 +474,7 @@ enum TN_RCode tn_task_create(
    memset(&task->profiler, 0x00, sizeof(task->profiler));
 #endif
 
+#if TN_STACK_OVERFLOW_CHECK
    //-- fill all task stack space by #TN_FILL_STACK_VAL
    {
       TN_UWord *ptr_stack;
@@ -486,6 +487,7 @@ enum TN_RCode tn_task_create(
          *ptr_stack++ = TN_FILL_STACK_VAL;
       }
    }
+#endif
 
    //-- reset task_queue (the queue used to include task to runqueue or 
    //   waitqueue)

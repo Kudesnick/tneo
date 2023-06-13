@@ -240,50 +240,6 @@ struct TN_Timer {
 };
 
 
-
-
-
-#if TN_DYNAMIC_TICK || defined(DOXYGEN_ACTIVE)
-
-/**
- * $(TN_IF_ONLY_DYNAMIC_TICK_SET)
- *
- * Prototype of callback function that should schedule next time to call 
- * `tn_tick_int_processing()`.
- *
- * See `tn_callback_dyn_tick_set()`
- *
- * @param timeout 
- *    Timeout after which `tn_tick_int_processing()` should be called next
- *    time. Note the following:
- *    - It might be `#TN_WAIT_INFINITE`, which means that there are no active
- *      timeouts, and so, there's no need for tick interrupt at all.
- *    - It might be `0`; in this case, it's <i>already</i> time to call
- *      `tn_tick_int_processing()`. You might want to set interrupt request
- *      bit then, in order to get to it as soon as possible.
- *    - In other cases, the function should schedule next call to
- *      `tn_tick_int_processing()` in the `timeout` tick periods.
- *
- */
-typedef void (TN_CBTickSchedule)(TN_TickCnt timeout);
-
-/**
- * $(TN_IF_ONLY_DYNAMIC_TICK_SET)
- *
- * Prototype of callback function that should return current system tick
- * counter value.
- *
- * See `tn_callback_dyn_tick_set()`
- *
- * @return current system tick counter value.
- */
-typedef TN_TickCnt (TN_CBTickCntGet)(void);
-
-#endif
-
-
-
-
 /*******************************************************************************
  *    PROTECTED GLOBAL DATA
  ******************************************************************************/
@@ -450,6 +406,15 @@ enum TN_RCode tn_timer_time_left(
       struct TN_Timer *timer,
       TN_TickCnt *p_time_left
       );
+
+#if TN_DYNAMIC_TICK
+
+void tn_cb_tick_schedule(TN_TickCnt timeout);
+
+TN_TickCnt tn_cb_tick_cnt_get(void);
+
+#endif
+
 
 #ifdef __cplusplus
 }  /* extern "C" */

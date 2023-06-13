@@ -329,6 +329,7 @@ typedef  unsigned int               TN_UIntPtr;
 #  endif
 #  define _TN_STATIC_INLINE         static _TN_INLINE
 #  define _TN_VOLATILE_WORKAROUND   /* nothing */
+#  define _TN_WEAK                  __attribute__((weak))
 #elif defined(__TN_COMPILER_IAR__)
 #  if TN_FORCED_INLINE
 #     define _TN_INLINE             _Pragma("inline=forced")

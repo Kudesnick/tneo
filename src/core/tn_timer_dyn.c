@@ -63,15 +63,6 @@
  *    PROTECTED DATA
  ******************************************************************************/
 
-//-- see comments in the file _tn_timer_dyn.h
-TN_CBTickSchedule      *_tn_cb_tick_schedule = TN_NULL;
-
-//-- see comments in the file _tn_timer_dyn.h
-TN_CBTickCntGet        *_tn_cb_tick_cnt_get  = TN_NULL;
-
-
-
-
 /*******************************************************************************
  *    PRIVATE DATA
  ******************************************************************************/
@@ -156,7 +147,7 @@ static void _next_tick_schedule(TN_TickCnt cur_sys_tick_cnt)
    }
 
    //-- schedule next tick
-   _tn_cb_tick_schedule(next_timeout);
+   tn_cb_tick_schedule(next_timeout);
 }
 
 
@@ -184,7 +175,15 @@ static void _timer_cancel(struct TN_Timer *timer)
  *    PUBLIC FUNCTIONS
  ******************************************************************************/
 
+_TN_WEAK void tn_cb_tick_schedule(TN_TickCnt timeout)
+{
+   _TN_UNUSED(timeout);
+}
 
+_TN_WEAK TN_TickCnt tn_cb_tick_cnt_get(void)
+{
+   return 0;
+}
 
 /*******************************************************************************
  *    PROTECTED FUNCTIONS
@@ -193,28 +192,8 @@ static void _timer_cancel(struct TN_Timer *timer)
 /*
  * See comments in the _tn_timer.h file.
  */
-void _tn_timer_dyn_callback_set(
-      TN_CBTickSchedule   *cb_tick_schedule,
-      TN_CBTickCntGet     *cb_tick_cnt_get
-      )
-{
-   _tn_cb_tick_schedule = cb_tick_schedule;
-   _tn_cb_tick_cnt_get  = cb_tick_cnt_get;
-}
-
-
-/*
- * See comments in the _tn_timer.h file.
- */
 void _tn_timers_init(void)
 {
-   //-- when dynamic tick is used, check that we have callbacks set.
-   //   (they should be set by tn_callback_dyn_tick_set() before calling
-   //   tn_sys_start())
-   if (_tn_cb_tick_schedule == TN_NULL || _tn_cb_tick_cnt_get == TN_NULL){
-      _TN_FATAL_ERROR("");
-   }
-
    //-- reset "generic" timers list
    if (!_tn_list_is_initialized(&_timer_list__gen)){
       _tn_list_reset(&_timer_list__gen);
@@ -321,6 +300,9 @@ enum TN_RCode _tn_timer_start(struct TN_Timer *timer, TN_TickCnt timeout)
       //
       //   Initially, we set it to the head of the list, and then walk
       //   through timers until we found needed place (or until list is over)
+      if (!_tn_list_is_initialized(&_timer_list__gen)){
+         _tn_list_reset(&_timer_list__gen);
+      }
       struct TN_ListItem *list_item = &_timer_list__gen;
       {
          struct TN_Timer *timer;

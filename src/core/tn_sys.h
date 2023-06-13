@@ -297,42 +297,6 @@ enum TN_Context {
  */
 typedef void (TN_CBUserTaskCreate)(void);
 
-/**
- * User-provided callback function that is called when the kernel detects stack
- * overflow (see `#TN_STACK_OVERFLOW_CHECK`).
- *
- * @param task
- *    Task whose stack is overflowed
- */
-typedef void (TN_CBStackOverflow)(struct TN_Task *task);
-
-/**
- * User-provided callback function that is called whenever 
- * deadlock becomes active or inactive.
- * Note: this feature works if only `#TN_MUTEX_DEADLOCK_DETECT` is non-zero.
- *
- * @param active
- *    Boolean value indicating whether deadlock becomes active or inactive.
- *    Note: deadlock might become inactive if, for example, one of tasks
- *    involved in deadlock exits from waiting by timeout.
- *
- * @param mutex
- *    mutex that is involved in deadlock. You may find out other mutexes
- *    involved by means of `mutex->deadlock_list`.
- *
- * @param task
- *    task that is involved in deadlock. You may find out other tasks involved
- *    by means of `task->deadlock_list`.
- */
-typedef void (TN_CBDeadlock)(
-      TN_BOOL active,
-      struct TN_Mutex *mutex,
-      struct TN_Task *task
-      );
-
-
-
-
 /*******************************************************************************
  *    DEFINITIONS
  ******************************************************************************/
@@ -432,32 +396,9 @@ enum TN_RCode tn_sys_tslice_set(int priority, int ticks);
 TN_TickCnt tn_sys_time_get(void);
 
 
-/**
- * Set callback function that should be called whenever deadlock occurs or
- * becomes inactive (say, if one of tasks involved in the deadlock was released
- * from wait because of timeout)
- *
- * $(TN_CALL_FROM_MAIN)
- * $(TN_LEGEND_LINK)
- *
- * **Note:** this function should be called from `main()`, before
- * `tn_sys_start()`.
- *
- * @param cb
- *    Pointer to user-provided callback function.
- *
- * @see `#TN_MUTEX_DEADLOCK_DETECT`
- * @see `#TN_CBDeadlock` for callback function prototype
- */
-void tn_callback_deadlock_set(TN_CBDeadlock *cb);
+void tn_cb_stack_overflow(struct TN_Task *task);
 
-/**
- * Set callback function that is called when the kernel detects stack overflow
- * (see `#TN_STACK_OVERFLOW_CHECK`).
- *
- * For function prototype, refer to `#TN_CBStackOverflow`.
- */
-void tn_callback_stack_overflow_set(TN_CBStackOverflow *cb);
+void tn_cb_deadlock(TN_BOOL active, struct TN_Mutex *mutex, struct TN_Task *task);
 
 /**
  * Returns current system state flags
@@ -576,32 +517,6 @@ _TN_STATIC_INLINE void tn_sched_restore(TN_UWord sched_state)
 {
    tn_arch_sched_restore(sched_state);
 }
-
-
-#if TN_DYNAMIC_TICK || defined(DOXYGEN_ACTIVE)
-/**
- * $(TN_IF_ONLY_DYNAMIC_TICK_SET)
- *
- * Set callbacks related to dynamic tick.
- *
- * \attention This function should be called <b>before</b> `tn_sys_start()`,
- * otherwise, you'll run into run-time error `_TN_FATAL_ERROR()`.
- *
- * $(TN_CALL_FROM_MAIN)
- * $(TN_LEGEND_LINK)
- *
- * @param cb_tick_schedule
- *    Pointer to callback function to schedule next time to call
- *    `tn_tick_int_processing()`, see `#TN_CBTickSchedule` for the prototype.
- * @param cb_tick_cnt_get
- *    Pointer to callback function to get current system tick counter value,
- *    see `#TN_CBTickCntGet` for the prototype.
- */
-void tn_callback_dyn_tick_set(
-      TN_CBTickSchedule   *cb_tick_schedule,
-      TN_CBTickCntGet     *cb_tick_cnt_get
-      );
-#endif
 
 
 #ifdef __cplusplus
