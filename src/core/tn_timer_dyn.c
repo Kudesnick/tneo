@@ -286,6 +286,9 @@ enum TN_RCode _tn_timer_start(struct TN_Timer *timer, TN_TickCnt timeout)
    if (timeout == TN_WAIT_INFINITE || timeout == 0){
       rc = TN_RC_WPARAM;
    } else {
+      if (!_tn_list_is_initialized(&_timer_list__gen)){
+         _tn_timers_init();
+      }
       //-- cancel the timer
       _timer_cancel(timer);
 
@@ -300,25 +303,22 @@ enum TN_RCode _tn_timer_start(struct TN_Timer *timer, TN_TickCnt timeout)
       //
       //   Initially, we set it to the head of the list, and then walk
       //   through timers until we found needed place (or until list is over)
-      if (!_tn_list_is_initialized(&_timer_list__gen)){
-         _tn_list_reset(&_timer_list__gen);
-      }
       struct TN_ListItem *list_item = &_timer_list__gen;
       {
-         struct TN_Timer *timer;
+         struct TN_Timer *_timer;
          struct TN_Timer *tmp_timer;
 
          _tn_list_for_each_entry_safe(
-               timer, struct TN_Timer, tmp_timer,
+               _timer, struct TN_Timer, tmp_timer,
                &_timer_list__gen, timer_queue
                )
          {
             //-- timeout value should never be TN_WAIT_INFINITE.
-            _TN_BUG_ON(timer->timeout == TN_WAIT_INFINITE);
+            _TN_BUG_ON(_timer->timeout == TN_WAIT_INFINITE);
 
-            if (_time_left_get(timer, cur_sys_tick_cnt) < timeout){
+            if (_time_left_get(_timer, cur_sys_tick_cnt) < timeout){
                //-- Probably this is the place for new timer..
-               list_item = &timer->timer_queue;
+               list_item = &_timer->timer_queue;
             } else {
                //-- Found timer with larger timeout than that of new timer.
                //   So, list_item now contains the correct place for new timer.
