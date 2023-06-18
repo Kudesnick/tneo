@@ -395,10 +395,42 @@ enum TN_RCode tn_sys_tslice_set(int priority, int ticks);
  */
 TN_TickCnt tn_sys_time_get(void);
 
-
+#if TN_STACK_OVERFLOW_CHECK || defined(DOXYGEN_ACTIVE)
+/**
+ * User-provided callback function that is called when the kernel detects stack
+ * overflow (see `#TN_STACK_OVERFLOW_CHECK`).
+ *
+ * $(TN_WEAK_FUNCTION)
+ *
+ * @param task
+ *    Task whose stack is overflowed
+ */
 void tn_cb_stack_overflow(struct TN_Task *task);
+#endif
 
+#if TN_MUTEX_DEADLOCK_DETECT || defined(DOXYGEN_ACTIVE)
+/**
+ * User-provided callback function that is called whenever 
+ * deadlock becomes active or inactive.
+ * Note: this feature works if only `#TN_MUTEX_DEADLOCK_DETECT` is non-zero.
+ *
+ * $(TN_WEAK_FUNCTION)
+ *
+ * @param active
+ *    Boolean value indicating whether deadlock becomes active or inactive.
+ *    Note: deadlock might become inactive if, for example, one of tasks
+ *    involved in deadlock exits from waiting by timeout.
+ *
+ * @param mutex
+ *    mutex that is involved in deadlock. You may find out other mutexes
+ *    involved by means of `mutex->deadlock_list`.
+ *
+ * @param task
+ *    task that is involved in deadlock. You may find out other tasks involved
+ *    by means of `task->deadlock_list`.
+ */
 void tn_cb_deadlock(TN_BOOL active, struct TN_Mutex *mutex, struct TN_Task *task);
+#endif
 
 /**
  * Returns current system state flags

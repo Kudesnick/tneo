@@ -175,12 +175,17 @@ static void _timer_cancel(struct TN_Timer *timer)
  *    PUBLIC FUNCTIONS
  ******************************************************************************/
 
+/*
+ * See comments in the tn_timer.h file.
+ */
 _TN_WEAK void tn_cb_tick_schedule(TN_TickCnt timeout)
 {
    _TN_UNUSED(timeout);
 }
 
-_TN_WEAK TN_TickCnt tn_cb_tick_cnt_get(void)
+/*
+ * See comments in the tn_timer.h file.
+ */_TN_WEAK TN_TickCnt tn_cb_tick_cnt_get(void)
 {
    return 0;
 }

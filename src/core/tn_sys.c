@@ -646,19 +646,28 @@ TN_TaskBody *tn_cur_task_body_get(void)
    return _tn_curr_run_task->task_func_addr;
 }
 
+#if TN_STACK_OVERFLOW_CHECK
+/*
+ * See comment in tn_sys.h file
+ */
 _TN_WEAK void tn_cb_stack_overflow(struct TN_Task *task)
 {
    _TN_UNUSED(task);
    _TN_FATAL_ERROR("stack overflow");
 }
+#endif
 
+#if TN_MUTEX_DEADLOCK_DETECT
+/*
+ * See comment in tn_sys.h file
+ */
 _TN_WEAK void tn_cb_deadlock(TN_BOOL active, struct TN_Mutex *mutex, struct TN_Task *task)
 {
    _TN_UNUSED(active);
    _TN_UNUSED(mutex);
    _TN_UNUSED(task);
 }
-
+#endif
 
 /*******************************************************************************
  *    PROTECTED FUNCTIONS
