@@ -658,6 +658,53 @@ enum TN_RCode tn_queue_delete(struct TN_DQueue * dque)
 /*
  * See comments in the header file (tn_dqueue.h)
  */
+enum TN_RCode tn_queue_reset(struct TN_DQueue * dque)
+{
+   enum TN_RCode rc = TN_RC_OK;
+
+   rc = _check_param_generic(dque);
+   if (rc != TN_RC_OK){
+      //-- just return rc as it is
+   } else if (!tn_is_task_context()){
+      rc = TN_RC_WCONTEXT;
+   } else {
+      TN_INTSAVE_DATA;
+
+      TN_INT_DIS_SAVE();
+
+      dque->tail_idx = 0;
+      dque->head_idx = 0;
+
+      if (dque->filled_items_cnt != 0){
+         dque->filled_items_cnt = 0;
+         //-- clear flag in the connected event group (if any),
+         //   indicating that there are no messages in the queue
+         _tn_eventgrp_link_manage(&dque->eventgrp_link, TN_FALSE);
+
+         //-- successfully clear the queue.
+         //   if there are tasks that wait to send data to the queue,
+         //   wake the first one up, since there is room now.
+         _tn_task_first_wait_complete(
+               &dque->wait_send_list, TN_RC_OK,
+               _cb_before_task_wait_complete__receive_ok, dque, TN_NULL
+               );
+      }
+      TN_INT_RESTORE();
+
+      //-- we might need to switch context if _tn_wait_queue_notify_deleted()
+      //   has woken up some high-priority task
+      _tn_context_switch_pend_if_needed();
+
+   }
+
+   return rc;
+
+}
+
+
+/*
+ * See comments in the header file (tn_dqueue.h)
+ */
 enum TN_RCode tn_queue_send(
       struct TN_DQueue *dque,
       void *p_data,

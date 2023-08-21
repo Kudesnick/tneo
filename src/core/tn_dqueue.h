@@ -206,6 +206,24 @@ enum TN_RCode tn_queue_create(
  */
 enum TN_RCode tn_queue_delete(struct TN_DQueue *dque);
 
+/**
+ * Reset data queue.
+ *
+ * Clear all elements of data queue.
+ *
+ * $(TN_CALL_FROM_TASK)
+ * $(TN_CAN_SWITCH_CONTEXT)
+ * $(TN_LEGEND_LINK)
+ *
+ * @param dque       pointer to data queue to be reset
+ *
+ * @return 
+ *    * `#TN_RC_OK` if queue was successfully reset;
+ *    * `#TN_RC_WCONTEXT` if called from wrong context;
+ *    * If `#TN_CHECK_PARAM` is non-zero, additional return codes
+ *      are available: `#TN_RC_WPARAM` and `#TN_RC_INVALID_OBJ`.
+ */
+enum TN_RCode tn_queue_reset(struct TN_DQueue * dque);
 
 /**
  * Send the data element specified by the `p_data` to the data queue

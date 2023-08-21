@@ -247,6 +247,26 @@ enum TN_RCode tn_fmem_create(
 enum TN_RCode tn_fmem_delete(struct TN_FMem *fmem);
 
 /**
+ * Reset fixed memory blocks pool.
+ *
+ * Release all elements of fixed memory blocks pool.
+ * 
+ * $(TN_CALL_FROM_TASK)
+ * $(TN_CAN_SWITCH_CONTEXT)
+ * $(TN_LEGEND_LINK)
+ *
+ * @param fmem       pointer to memory pool to be reset
+ *
+ * @return
+ *    * `#TN_RC_OK` if memory pool is successfully reset;
+ *    * `#TN_RC_WCONTEXT` if called from wrong context;
+ *    * If `#TN_CHECK_PARAM` is non-zero, additional return codes
+ *      are available: `#TN_RC_WPARAM` and `#TN_RC_INVALID_OBJ`.
+ *
+ */
+enum TN_RCode tn_fmem_reset(struct TN_FMem *fmem);
+
+/**
  * Get memory block from the pool. Start address of the memory block is returned
  * through the `p_data` argument. The content of memory block is undefined.
  * If there is no free block in the pool, behavior depends on `timeout` value:

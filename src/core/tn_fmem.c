@@ -333,6 +333,31 @@ _TN_STATIC_INLINE enum TN_RCode _tn_fmem_irelease(struct TN_FMem *fmem, void *p_
    return rc;
 }
 
+/**
+ * Init block pointers.
+ *
+ * @param fmem
+ *    Pointer to memory pool.
+ */
+_TN_STATIC_INLINE void _tn_fmem_init_block_ptrs(struct TN_FMem *fmem)
+{
+   void **p_tmp;
+   TN_UWord *p_block;
+   unsigned int i;
+
+   p_tmp    = (void **)fmem->start_addr;
+   p_block  = (TN_UWord *)fmem->start_addr + (fmem->block_size / sizeof(TN_UWord));
+   for (i = 0; i < (fmem->blocks_cnt - 1); i++){
+      *p_tmp  = (void *)p_block;  //-- contents of cell = addr of next block
+      p_tmp   = (void **)p_block;
+      p_block += fmem->block_size / sizeof(TN_UWord);
+   }
+   *p_tmp = TN_NULL;          //-- Last memory block first cell contents -  TN_NULL
+
+   fmem->free_list       = fmem->start_addr;
+   fmem->free_blocks_cnt = fmem->blocks_cnt;
+}
+
 /*******************************************************************************
  *    PUBLIC FUNCTIONS
  ******************************************************************************/
@@ -391,23 +416,7 @@ enum TN_RCode tn_fmem_create(
    _tn_list_reset(&(fmem->wait_queue));
 
    //-- init block pointers
-   {
-      void **p_tmp;
-      TN_UWord *p_block;
-      unsigned int i;
-
-      p_tmp    = (void **)fmem->start_addr;
-      p_block  = (TN_UWord *)fmem->start_addr + (fmem->block_size / sizeof(TN_UWord));
-      for (i = 0; i < (fmem->blocks_cnt - 1); i++){
-         *p_tmp  = (void *)p_block;  //-- contents of cell = addr of next block
-         p_tmp   = (void **)p_block;
-         p_block += fmem->block_size / sizeof(TN_UWord);
-      }
-      *p_tmp = TN_NULL;          //-- Last memory block first cell contents -  TN_NULL
-
-      fmem->free_list       = fmem->start_addr;
-      fmem->free_blocks_cnt = fmem->blocks_cnt;
-   }
+   _tn_fmem_init_block_ptrs(fmem);
 
    //-- set id
    fmem->id_fmp = TN_ID_FSMEMORYPOOL;
@@ -437,6 +446,40 @@ enum TN_RCode tn_fmem_delete(struct TN_FMem *fmem)
       _tn_wait_queue_notify_deleted(&(fmem->wait_queue));
 
       fmem->id_fmp = TN_ID_NONE;   //-- Fixed-size memory pool does not exist now
+
+      TN_INT_RESTORE();
+
+      //-- we might need to switch context if _tn_wait_queue_notify_deleted()
+      //   has woken up some high-priority task
+      _tn_context_switch_pend_if_needed();
+
+   }
+   return rc;
+}
+
+
+/*
+ * See comments in the header file (tn_dqueue.h)
+ */
+enum TN_RCode tn_fmem_reset(struct TN_FMem *fmem)
+{
+   enum TN_RCode rc = _check_param_fmem_delete(fmem);
+
+   if (rc != TN_RC_OK){
+      //-- just return rc as it is
+   } else if (!tn_is_task_context()){
+      rc = TN_RC_WCONTEXT;
+   } else {
+      TN_INTSAVE_DATA;
+
+      TN_INT_DIS_SAVE();
+
+      if (fmem->blocks_cnt != fmem->free_blocks_cnt){
+         //-- init block pointers
+         _tn_fmem_init_block_ptrs(fmem);
+         
+         
+      }
 
       TN_INT_RESTORE();
 
