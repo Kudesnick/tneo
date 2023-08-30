@@ -345,14 +345,16 @@ _TN_STATIC_INLINE void _tn_fmem_init_block_ptrs(struct TN_FMem *fmem)
    TN_UWord *p_block;
    unsigned int i;
 
-   p_tmp    = (void **)fmem->start_addr;
-   p_block  = (TN_UWord *)fmem->start_addr + (fmem->block_size / sizeof(TN_UWord));
-   for (i = 0; i < (fmem->blocks_cnt - 1); i++){
-      *p_tmp  = (void *)p_block;  //-- contents of cell = addr of next block
-      p_tmp   = (void **)p_block;
-      p_block += fmem->block_size / sizeof(TN_UWord);
+   if (fmem->blocks_cnt){
+      p_tmp    = (void **)fmem->start_addr;
+      p_block  = (TN_UWord *)fmem->start_addr + (fmem->block_size / sizeof(TN_UWord));
+      for (i = 0; i < (fmem->blocks_cnt - 1); i++){
+         *p_tmp  = (void *)p_block;  //-- contents of cell = addr of next block
+         p_tmp   = (void **)p_block;
+         p_block += fmem->block_size / sizeof(TN_UWord);
+      }
+      *p_tmp = TN_NULL;          //-- Last memory block first cell contents -  TN_NULL
    }
-   *p_tmp = TN_NULL;          //-- Last memory block first cell contents -  TN_NULL
 
    fmem->free_list       = fmem->start_addr;
    fmem->free_blocks_cnt = fmem->blocks_cnt;
@@ -380,8 +382,8 @@ enum TN_RCode tn_fmem_create(
    }
 
    //-- basic check: start_addr should not be TN_NULL,
-   //   and blocks_cnt should be at least 2
-   if (start_addr == TN_NULL || blocks_cnt < 2){
+   //   or blocks_cnt should not be zero
+   if (start_addr != TN_NULL && blocks_cnt == 0){
       rc = TN_RC_WPARAM;
       goto out;
    }
@@ -400,7 +402,7 @@ enum TN_RCode tn_fmem_create(
    //-- check that block_size is aligned properly
    {
       unsigned int block_size_aligned = TN_MAKE_ALIG_SIZE(block_size);
-      if (block_size_aligned != block_size){
+      if (block_size_aligned != block_size || block_size < sizeof(void *)){
          rc = TN_RC_WPARAM;
          goto out;
       }
