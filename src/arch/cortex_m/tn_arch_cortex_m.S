@@ -647,6 +647,5 @@ _TN_LABEL(tn_arch_sched_restore)
       b        _TN_NAME(tn_arch_sr_restore)
 #endif
 
-   nop
+   ALIGN
    _TN_END()
-
