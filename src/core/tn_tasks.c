@@ -677,12 +677,12 @@ enum TN_RCode tn_task_yield(void)
 
       TN_INT_DIS_SAVE();
 
-      //-- put task to wait with reason SLEEP and without wait queue.
-      _tn_curr_run_task->task_state |= TN_TASK_STATE_YIELD;
+      //-- switch task as round-robin without wait queue.
+      _tn_yield_switch();
 
       TN_INT_RESTORE();
       _tn_context_switch_pend_if_needed();
-      rc = TN_RC_OK;
+      rc = _tn_curr_run_task->task_wait_rc;
    }
 
    return rc;
@@ -1058,9 +1058,10 @@ void _tn_task_set_waiting(
       //   it is already reset in _tn_task_clear_runnable().
    }
 
-   if (timeout)
-   //-- Add to the timers queue, if timeout is neither 0 nor `TN_WAIT_INFINITE`.
-   _tn_timer_start(&task->timer, timeout);
+   if (timeout){
+      //-- Add to the timers queue, if timeout is neither 0 nor `TN_WAIT_INFINITE`.
+      _tn_timer_start(&task->timer, timeout);
+   }
 }
 
 /**
@@ -1071,9 +1072,9 @@ void _tn_task_clear_waiting(struct TN_Task *task, enum TN_RCode wait_rc)
 #if TN_DEBUG
    //-- only WAIT and SUSPEND bits are allowed here,
    //   and WAIT bit must be set
-   if (
-              (task->task_state & ~(TN_TASK_STATE_WAIT | TN_TASK_STATE_SUSPEND))
-         || (!(task->task_state &  (TN_TASK_STATE_WAIT)                    ))
+   if (0
+       ||   (task->task_state & ~(TN_TASK_STATE_WAIT | TN_TASK_STATE_SUSPEND))
+       || (!(task->task_state &  (TN_TASK_STATE_WAIT)                       ))
       )
    {
       _TN_FATAL_ERROR("");
@@ -1133,9 +1134,9 @@ void _tn_task_clear_suspended(struct TN_Task *task)
 #if TN_DEBUG
    //-- only WAIT and SUSPEND bits are allowed here,
    //   and SUSPEND bit must be set
-   if (
-         (task->task_state & ~(TN_TASK_STATE_WAIT | TN_TASK_STATE_SUSPEND))
-         || (!(task->task_state &                   (TN_TASK_STATE_SUSPEND)))
+   if (0
+       ||   (task->task_state & ~(TN_TASK_STATE_WAIT | TN_TASK_STATE_SUSPEND))
+       || (!(task->task_state &                       (TN_TASK_STATE_SUSPEND)))
       )
    {
       _TN_FATAL_ERROR("");

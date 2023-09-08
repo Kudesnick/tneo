@@ -197,7 +197,11 @@ void _tn_sys_on_context_switch(
       );
 #endif
 
-
+/**
+ * Selects the next task using the round-robin strategy.
+ * A similar strategy is used by the `tn_task_yield` function
+ */
+void _tn_yield_switch(void);
 
 /*******************************************************************************
  *    PROTECTED INLINE FUNCTIONS
