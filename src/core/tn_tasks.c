@@ -967,7 +967,7 @@ void _tn_task_set_runnable(struct TN_Task * task)
    _add_entry_to_ready_queue(&(task->task_queue), priority);
 
    //-- less value - greater priority, so '<' operation is used here
-   if (priority < _tn_next_task_to_run->priority){
+   if (_tn_next_task_to_run == TN_NULL || priority < _tn_next_task_to_run->priority){
       _tn_next_task_to_run = task;
    }
 }
