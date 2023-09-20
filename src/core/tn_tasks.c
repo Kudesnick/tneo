@@ -885,7 +885,7 @@ enum TN_RCode tn_task_change_priority(struct TN_Task *task, int new_priority)
 
    if (rc != TN_RC_OK){
       //-- just return rc as it is
-   } else if (new_priority < 0 || new_priority >= (TN_PRIORITIES_CNT - 1)){
+   } else if (new_priority >= (TN_PRIORITIES_CNT - 1)){
       rc = TN_RC_WPARAM;
    } else if (!tn_is_task_context()){
       rc = TN_RC_WCONTEXT;
@@ -894,7 +894,7 @@ enum TN_RCode tn_task_change_priority(struct TN_Task *task, int new_priority)
 
       TN_INT_DIS_SAVE();
 
-      if (new_priority == 0){
+      if (new_priority < 0){
          new_priority = task->base_priority;
       }
 

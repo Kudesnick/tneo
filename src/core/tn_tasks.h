@@ -919,12 +919,10 @@ enum TN_RCode tn_task_profiler_timing_get(
 
 /**
  * Set new priority for task.
- * If priority is 0, then task's base_priority is set.
+ * If priority is less than zero, then task's base_priority is set.
  *
  * $(TN_CALL_FROM_TASK)
  * $(TN_LEGEND_LINK)
- *
- * \attention this function is obsolete and will probably be removed
  */
 enum TN_RCode tn_task_change_priority(struct TN_Task *task, int new_priority);
 
